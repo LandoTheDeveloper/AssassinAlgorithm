@@ -4,7 +4,7 @@ from google.oauth2.service_account import Credentials
 
 # Google Sheets API setup
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-CREDS_FILE = 'assassin-spring-2025-c7276756992d.json'
+CREDS_FILE = 'assassin-spring-2025-1bbc92be5fbc.json'
 SPREADSHEET_ID = '1N6L44_3x4J4kkE6NKxoJkO0x74D729jYrhQAA3Au9bE'
 SHEET_NAME = 'Data'
 
