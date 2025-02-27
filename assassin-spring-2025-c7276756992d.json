@@ -1,13 +1,1 @@
-{
-  "type": "service_account",
-  "project_id": "assassin-spring-2025",
-  "private_key_id": "c7276756992d1a755acc94590e9f2a00d302f43a",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCsTtrEujpCerVj\n8u6sMVMXUBHulG713E74WbvDS25H8TROBgK+Mg9yYRqSI6R0ijUfrZoHpEornjUa\nX3voa2ijSSsNq1bqILF8HLkXRcfj5PHNeNxi4pCvHdgedalpOQl42b71Z6TpEXaS\nKpRelYv1pf/+0Z34hPYcYNP6lTsrPv955BEOPUB35CTg8U/axUr7x8WbFw9SeXDG\nxVE8pyrOjOOIEQXiopTcoMU7B/zNG+eqzzU5YSRwkMp6ZKXZznrWsqPeLo7KHIkc\n8eto5YE/al0GPCcWU8AFDjS6434uAsE0LFjPzMhOnaipn9QcYC1Ly3osSrtj4Q1P\nOrdFcLhPAgMBAAECggEAGSnu8xoLVhgbk3wv9P/DFb2A0OnmhotlEQnxzOSgN2t3\nawmfru0aqmaZ/cuswcRJW9X7j7AjkNkrAi39p4TAJFCUNAvYxpp9sRV0xnxPY+3U\njmBfNyXFYX2nSVN/qTlGM9sA80/umocNXO1Q+7s1VGuoxisQufGZC63sZ0UR/g+Y\nObkDbO4wQ1t6WNe9gW1YzruIUB8qtm0Nm/vvx3Se4ikNRVI8FHmgLrSDEYUNnIEA\nwUn9JICGkO9Z6crPDiprmMzI+Y0pcDRhoIqaGTxee8yHxwnRs4lF2nhTaY0vkuj3\nYSTy/xE3lmH8QRLXA+EYwiqtzw8+FvnKMQNdPOGjEQKBgQDzDF8A/4qLpozKxirP\n1b4FjkKe8MJnmjZuK9NjCCD2KO+r16ycopIKjqti4nLKuKIzz4d9lPZvBVzR2GDx\nlpudg2OaH/iUPwqebgsEuKAPlRnqGUz646mBjnglhFuMvftczmRZsy57mcIwKu4/\nnihDr7B4qrkkUSzjwqd3JSkjiQKBgQC1fXRy1ln60/gqZ8CUXrdzUwfx5t/F7bWf\nQ6Bv8lce/MJU3ExNChiZs8R+8C8miXPPqoa/5OMY4VlJujOc6aKs4T9RCvIYCTBp\n0ORQ9ei+qrA3V/0I6JNB66ewbFuQ0r1EZ5ddqeSMNzWKA04alenmXcWun2rh7vIU\nBc59Sn2PFwKBgH6qhNy1URQk0Z1gF7HHOEgW8vt4iCiMQy+5oWosM1l2zimltizP\nwQLFheZ8E8042jfcQUWem6wShGRMu4FMt38omYEahmdkT3lv6kgknC5iy2Wol+jt\nO0rs4ArVZwz7egPNAJmK+3+pC34k8ZOwLlXQO0031FNsBtQQf0xlzoHZAoGAY5gg\n2xP99MN1n++nosQHb+XUqk7D5d34mRmHZWdbn8mc6uypgm1T6qTX48DyXvd28jLm\nF1AHv5OKaAciY61ic/R3xoV3LPF9+9OCN1t7CYaphPVoCgd3J+ml8A7GgMbkzjD6\nw4+Dt95kJwSBS92QqbYz0Qvyn2F8vrghBGhoVqkCgYA76u9h1Ln3Aj0aY8rcsfSF\nuNyUhTGGXL33wseY/y3CWOotsNKt3KGk/asFZsZhd0OouRKcgONPaUBl8vL9TCaN\nZj4m3WlaAdoTCUYumu+IUv85tp4VY6r7BcvnoQUQ1YEA7yQ1+SPlylkf3MDt1Rbs\n8bIyO+1kgRwjuSMkGJQD0g==\n-----END PRIVATE KEY-----\n",
-  "client_email": "assassin-game-service-account@assassin-spring-2025.iam.gserviceaccount.com",
-  "client_id": "107791707583593699252",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/assassin-game-service-account%40assassin-spring-2025.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-}
+
