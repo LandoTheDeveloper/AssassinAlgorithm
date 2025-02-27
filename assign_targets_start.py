@@ -1,65 +1,99 @@
 import random
-import csv
+import gspread
+from google.oauth2.service_account import Credentials
 
-def assign_targets(active_players):
-    """Assign initial targets in a shuffled circular manner."""
-    shuffled = active_players.copy()
-    random.shuffle(shuffled)
+# Google Sheets API setup
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+CREDS_FILE = 'assassin-spring-2025-c7276756992d.json'
+SPREADSHEET_ID = '1N6L44_3x4J4kkE6NKxoJkO0x74D729jYrhQAA3Au9bE'
+SHEET_NAME = 'Data'
+
+def get_sheet_client():
+    """Authenticate and return the Google Sheets client."""
+    creds = Credentials.from_service_account_file(CREDS_FILE, scopes=SCOPES)
+    client = gspread.authorize(creds)
+    return client
+
+def get_sheet_data():
+    """Fetch data from the Google Sheet."""
+    client = get_sheet_client()
+    sheet = client.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
+    # Fetch all data
+    data = sheet.get_all_records()
+    #print("Fetched Data:", data)  # Debug: Print fetched data
+    return data
+
+def update_sheet_data(data):
+    """Update the Google Sheet with new data."""
+    client = get_sheet_client()
+    sheet = client.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
+    # Clear the sheet and write updated data
+    sheet.clear()
+    # Write headers (first row)
+    headers = ["Player", "Target", "Status", "Paid?", "Submitted Schedule?", "Number of Assassinations"]
+    sheet.append_row(headers)
+    # Write data rows
+    for row in data:
+        sheet.append_row([row["Player"], row["Target"], row["Status"], row["Paid?"], row["Submitted Schedule?"], row["Number of Assassinations"]])
+    #print("Updated Data:", data)  # Debug: Print updated data
+
+def assign_targets(players):
+    """Assign targets to active players."""
+    active_players = [player["Player"] for player in players if str(player["Status"]) == "1"]
+    print("Active Players:", active_players)  # Debug: Print active players
+    if not active_players:
+        print("No active players found.")
+        return {}
+    random.shuffle(active_players)
     assignments = {}
-    n = len(shuffled)
+    n = len(active_players)
     for i in range(n):
-        assassin = shuffled[i]
-        target = shuffled[(i + 1) % n]
+        assassin = active_players[i]
+        target = active_players[(i + 1) % n]
         assignments[assassin] = target
+    print("Assignments:", assignments)  # Debug: Print assignments
+
+    # Set target to empty string for eliminated players
+    for player in players:
+        if str(player["Status"]) == "0":
+            player["Target"] = ""
+            print(f"Cleared target for eliminated player: {player['Player']}")
+
     return assignments
 
 def main():
-    # Read the CSV file
-    with open('db.csv', 'r', encoding='utf-8') as file:
-        csv_reader = csv.reader(file)
-        header = next(csv_reader)
-        rows = list(csv_reader)
-    
-    # Check if initial targets are needed
-    active_players = []
-    needs_initial_targets = False
-    for row in rows:
-        name, target, status = row[0], row[1], row[2]
-        if status == '1':
-            active_players.append(name)
-            if not target:
-                needs_initial_targets = True
-    
-    if needs_initial_targets:
-        # Assign initial targets
-        assignments = assign_targets(active_players)
-        for row in rows:
-            if row[0] in assignments:
-                row[1] = assignments[row[0]]
-    else:
-        # Process eliminations
-        eliminated_players = [row for row in rows if row[2] == '0' and row[1]]
-        for eliminated_row in eliminated_players:
-            eliminated_name = eliminated_row[0]
-            eliminated_target = eliminated_row[1]
-            
-            # Find the assassin (active player targeting eliminated)
-            assassin_row = next((r for r in rows if r[1] == eliminated_name and r[2] == '1'), None)
-            if assassin_row:
-                assassin_row[1] = eliminated_target  # Inherit target
-            eliminated_row[1] = ''  # Clear eliminated player's target
-    
-    # Write updates back to CSV
-    with open('db.csv', 'w', encoding='utf-8', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(header)
-        writer.writerows(rows)
-    
-    # Display current targets
-    print("Current Targets:")
-    for row in rows:
-        if row[2] == '1' and row[1]:
-            print(f"{row[0]} → {row[1]}")
+    # Fetch data from Google Sheet
+    players = get_sheet_data()
+    #print(f"Players: {players}")
+    if not players:
+        print("No players found in the Google Sheet.")
+        return
+
+    # Assign targets
+    targets = assign_targets(players)
+
+    # Update player data with targets and increment assassinations if target is eliminated
+    for player in players:
+        if player["Player"] in targets:
+            player["Target"] = targets[player["Player"]]
+            print(f"{player['Player']} → {player['Target']}")
+
+            # Check if the target is eliminated (Status is "0")
+            target_player = next((p for p in players if p["Player"] == player["Target"]), None)
+            if target_player and target_player["Status"] == "0":
+                # Increment the assassin's Number of Assassinations
+                if player["Number of Assassinations"] == '':
+                    player["Number of Assassinations"] = 1  # Initialize if empty
+                else:
+                    player["Number of Assassinations"] = int(player["Number of Assassinations"]) + 1
+                print(f"Incremented assassinations for {player['Player']} (now {player['Number of Assassinations']})")
+
+        if player["Status"] == '0':
+            print(f"Eliminated: {player['Player']}")
+            player["Target"] = ""  # Clear target for eliminated players
+
+    # Update Google Sheet with new data
+    update_sheet_data(players)
 
 if __name__ == "__main__":
     main()
