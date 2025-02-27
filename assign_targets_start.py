@@ -8,6 +8,25 @@ CREDS_FILE = 'assassin-spring-2025-c7276756992d.json'
 SPREADSHEET_ID = '1N6L44_3x4J4kkE6NKxoJkO0x74D729jYrhQAA3Au9bE'
 SHEET_NAME = 'Data'
 
+class Player:
+    def __init__(self, name, target, status, paid, submitted_schedule, num_assassinations):
+        self.name = name
+        self.target = target
+        self.status = status
+        self.paid = paid
+        self.submitted_schedule = submitted_schedule
+        self.num_assassinations = num_assassinations
+
+    def to_dict(self):
+        return {
+            "Player": self.name,
+            "Target": self.target,
+            "Status": self.status,
+            "Paid?": self.paid,
+            "Submitted Schedule?": self.submitted_schedule,
+            "Number of Assassinations": self.num_assassinations
+        }
+
 def get_sheet_client():
     """Authenticate and return the Google Sheets client."""
     creds = Credentials.from_service_account_file(CREDS_FILE, scopes=SCOPES)
@@ -18,81 +37,92 @@ def get_sheet_data():
     """Fetch data from the Google Sheet."""
     client = get_sheet_client()
     sheet = client.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
-    # Fetch all data
     data = sheet.get_all_records()
-    #print("Fetched Data:", data)  # Debug: Print fetched data
-    return data
+    players = [Player(
+        name=row["Player"],
+        target=row["Target"],
+        status=row["Status"],
+        paid=row["Paid?"],
+        submitted_schedule=row["Submitted Schedule?"],
+        num_assassinations=row["Number of Assassinations"] if row["Number of Assassinations"] else 0
+    ) for row in data]
+    return players
 
-def update_sheet_data(data):
+def update_sheet_data(players):
     """Update the Google Sheet with new data."""
     client = get_sheet_client()
     sheet = client.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
-    # Clear the sheet and write updated data
     sheet.clear()
-    # Write headers (first row)
     headers = ["Player", "Target", "Status", "Paid?", "Submitted Schedule?", "Number of Assassinations"]
     sheet.append_row(headers)
-    # Write data rows
-    for row in data:
-        sheet.append_row([row["Player"], row["Target"], row["Status"], row["Paid?"], row["Submitted Schedule?"], row["Number of Assassinations"]])
-    #print("Updated Data:", data)  # Debug: Print updated data
+    for player in players:
+        sheet.append_row([
+            player.name, player.target, player.status, player.paid, player.submitted_schedule, player.num_assassinations
+        ])
 
 def assign_targets(players):
-    """Assign targets to active players."""
-    active_players = [player["Player"] for player in players if str(player["Status"]) == "1"]
-    print("Active Players:", active_players)  # Debug: Print active players
-    if not active_players:
-        print("No active players found.")
-        return {}
-    random.shuffle(active_players)
-    assignments = {}
-    n = len(active_players)
+    """Assign initial targets in a shuffled circular manner."""
+    print("Shuffling players...")
+    shuffled = players.copy()
+    random.shuffle(shuffled)
+    n = len(shuffled)
+    
+    print("Assigning targets...")
     for i in range(n):
-        assassin = active_players[i]
-        target = active_players[(i + 1) % n]
-        assignments[assassin] = target
-    print("Assignments:", assignments)  # Debug: Print assignments
-
-    # Set target to empty string for eliminated players
-    for player in players:
-        if str(player["Status"]) == "0":
-            player["Target"] = ""
-            print(f"Cleared target for eliminated player: {player['Player']}")
-
-    return assignments
+        assassin = shuffled[i]
+        
+        # Check if target is assigned
+        current_target_name = assassin.target
+        current_target = None
+        for player in players:
+            if player.name == current_target_name:
+                current_target = player
+                break
+            
+        # If target is assigned:
+        # If the assassin has an alive target, skip to the next player
+        if current_target and str(current_target.status) == "1":
+            print(f'{assassin.name} already has a target. Skipping...')
+            continue
+        
+        # If the assassin has no alive target, assign the old targets target as the target
+        # This means they assassinated their target
+        elif current_target and str(current_target.status) == "0":
+            print(f'{assassin.name} assassinated {current_target.name}.')
+            
+            assassin.num_assassinations += 1
+            print(f"{assassin.name} now has {assassin.num_assassinations} eliminations.")
+            
+            assassin.target = current_target.target
+            print(f'{assassin.name} --> {current_target.target}')
+            
+            current_target.target = ""
+            print(f"{current_target.name} is now dead.")
+            continue
+        
+        # If no target is assigned, assign a random target.
+        else:
+            if str(assassin.status) == "1":
+                target = shuffled[(i + 1) % n]
+                assassin.target = target.name
+                print(f'{assassin.name} --> {target.name}')
+            
+            # Start of game: Set eliminations to 0
+            if str(assassin.status) == "1":
+                assassin.num_assassinations = 0
+                print(f"{assassin.name}'s eliminations set to 0.")
+        
 
 def main():
-    # Fetch data from Google Sheet
     players = get_sheet_data()
-    #print(f"Players: {players}")
     if not players:
         print("No players found in the Google Sheet.")
-        return
+        return 
+            
+    # Assign active players their targets
+    assign_targets(players)
+    
 
-    # Assign targets
-    targets = assign_targets(players)
-
-    # Update player data with targets and increment assassinations if target is eliminated
-    for player in players:
-        if player["Player"] in targets:
-            player["Target"] = targets[player["Player"]]
-            print(f"{player['Player']} → {player['Target']}")
-
-            # Check if the target is eliminated (Status is "0")
-            target_player = next((p for p in players if p["Player"] == player["Target"]), None)
-            if target_player and target_player["Status"] == "0":
-                # Increment the assassin's Number of Assassinations
-                if player["Number of Assassinations"] == '':
-                    player["Number of Assassinations"] = 1  # Initialize if empty
-                else:
-                    player["Number of Assassinations"] = int(player["Number of Assassinations"]) + 1
-                print(f"Incremented assassinations for {player['Player']} (now {player['Number of Assassinations']})")
-
-        if player["Status"] == '0':
-            print(f"Eliminated: {player['Player']}")
-            player["Target"] = ""  # Clear target for eliminated players
-
-    # Update Google Sheet with new data
     update_sheet_data(players)
 
 if __name__ == "__main__":
