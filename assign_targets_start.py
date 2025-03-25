@@ -115,12 +115,13 @@ def assign_targets(players):
 
 def main():
     players = get_sheet_data()
+    active_players = [player for player in players if str(player.status) == "1"]
     if not players:
         print("No players found in the Google Sheet.")
         return 
             
     # Assign active players their targets
-    assign_targets(players)
+    assign_targets(active_players)
     
 
     update_sheet_data(players)
