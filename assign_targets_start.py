@@ -121,10 +121,10 @@ def main():
         return 
             
     # Assign active players their targets
-    assign_targets(active_players)
+    assign_targets(players)
     
-
     update_sheet_data(players)
+    
 
 if __name__ == "__main__":
     main()
